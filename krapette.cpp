@@ -493,6 +493,7 @@ bool Krapette::newCards()
         }  
         getActiveTalon()->topCard()->setFaceUp(true);
         emit newCardsPossible(false);
+        takeState();
     }
     
     startAI();
