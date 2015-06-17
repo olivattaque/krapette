@@ -296,7 +296,9 @@ void Krapette::restart( const QList<KCard*> &cards )
     // 2 : Highest tabled card
     // 3 : Highest sum of tabled cards
     // 4 : Random
-    if (m_player1Crapette->topCard()->rank() == m_player2Crapette->topCard()->rank()) {
+    const int player1CrapetteRank = m_player1Crapette->topCard()->rank();
+    const int player2CrapetteRank = m_player2Crapette->topCard()->rank();
+    if (player1CrapetteRank == player2CrapetteRank) {
         if (bestCardByPlayer1 != bestCardByPlayer2) {
             m_currentPlayer = (bestCardByPlayer1 > bestCardByPlayer2) ? m_player1 : m_player2;
         } else if (sumCardsByPlayer1 != sumCardsByPlayer2) {
@@ -305,7 +307,7 @@ void Krapette::restart( const QList<KCard*> &cards )
             m_currentPlayer = (std::rand() % 2 == 0 ? m_player1 : m_player2);
         }
     } else {
-        m_currentPlayer = (m_player1Crapette->topCard()->rank() > m_player2Crapette->topCard()->rank()) ? m_player1 : m_player2;
+        m_currentPlayer = (player1CrapetteRank > player2CrapetteRank) ? m_player1 : m_player2;
     }
     connect( m_currentPlayer->talon(), &KCardPile::clicked, this, &DealerScene::drawDealRowOrRedeal );
 
@@ -352,7 +354,7 @@ bool Krapette::checkAdd(const PatPile *pile, const QList<KCard*> &oldCards, cons
         }
         
         if(pile == getActiveWaste()) {
-            // Forgot to put a card on our waste if there is empty tables piles
+            // Forbid to put a card on our waste if there is empty tables piles
             if(emptyPlayPiles > 0) {
                 return false;
             }
@@ -444,13 +446,13 @@ void Krapette::cardsMoved( const QList<KCard*> &cards, KCardPile *oldPile, KCard
     if (newPatPile == getActiveWaste()) {
         changePlayer();
     }
-
-    //emit newCardsPossible( !m_currentPlayer->talon()->isEmpty() || m_currentPlayer->waste()->count() > 1 );
 }
 
 void Krapette::animationDone()
 {
     DealerScene::animationDone();
+    
+    checkDrawActionPossible();
     
     startAI();
 }
@@ -462,12 +464,19 @@ void Krapette::startAI()
     }
 }
 
+bool Krapette::checkDrawActionPossible() {
+    bool possible = m_currentPlayer->isHuman()
+                        && ((!getActiveTalon()->isEmpty() 
+                                && !getActiveTalon()->topCard()->isFaceUp())
+                            || (getActiveTalon()->isEmpty() 
+                                && getActiveWaste()->count() > 0));
+    possible = (!getActiveCrapette()->isEmpty() && countEmptyPlayPiles() > 0) ? false : possible;
+    emit newCardsPossible(possible);
+    return possible;
+}
+
 bool Krapette::newCards()
 {
-    // Can't pickup if talon is already face up
-    if (!getActiveTalon()->isEmpty() && getActiveTalon()->topCard()->isFaceUp()) {
-        return false;
-    }  
     // Can't pickup if there is compulsory moves to do
     if (checkCompulsoryMoves() 
         || (!getActiveCrapette()->isEmpty() && countEmptyPlayPiles() > 0)) {
@@ -476,12 +485,14 @@ bool Krapette::newCards()
 
     if (getActiveTalon()->isEmpty()) {
         flipCardsToPile( getActiveWaste()->cards(), getActiveTalon(), DURATION_MOVE );
+        emit newCardsPossible(true);
     } else {
+        // Can't pickup if talon is already face up
+        if (!getActiveTalon()->isEmpty() && getActiveTalon()->topCard()->isFaceUp()) {
+            return false;
+        }  
         getActiveTalon()->topCard()->setFaceUp(true);
-    }
-
-    if ( getActiveTalon()->isEmpty() && getActiveWaste()->count() <= 1 ) {
-       emit newCardsPossible( false );
+        emit newCardsPossible(false);
     }
     
     startAI();
@@ -580,16 +591,18 @@ void Krapette::player1Changed()
 {
     m_player1->toggleControl();
     if (m_currentPlayer == m_player1) {
-        tryMoveAI();
+        startAI();
     }
+    checkDrawActionPossible();
 }
 
 void Krapette::player2Changed()
 {
     m_player2->toggleControl();
     if (m_currentPlayer == m_player2) {
-        tryMoveAI();
+        startAI();
     }
+    checkDrawActionPossible();
 }
 
 void Krapette::setCrapetteRule() 
@@ -667,29 +680,23 @@ bool Krapette::isGameLost() const
 void Krapette::moveCardsToPileCustom(QList<KCard*> cards, PatPile * pile, int duration)
 {
     if (pile->pileRole() == PatPile::Foundation && cards.first()->rank() == KCardDeck::Ace) {
-        PatPile * foundation;
         switch(cards.first()->suit())
         {
         case KCardDeck::Spades:
-            foundation = m_target[0]->isEmpty() ? m_target[0] : m_target[4];
-            moveCardsToPile( cards, foundation, duration );
+            pile = m_target[0]->isEmpty() ? m_target[0] : m_target[4];
             break;
         case KCardDeck::Hearts:
-            foundation = m_target[1]->isEmpty() ? m_target[1] : m_target[5];
-            moveCardsToPile( cards, foundation, duration );
+            pile = m_target[1]->isEmpty() ? m_target[1] : m_target[5];
             break;
         case KCardDeck::Clubs:
-            foundation = m_target[2]->isEmpty() ? m_target[2] : m_target[6];
-            moveCardsToPile( cards, foundation, duration );
+            pile = m_target[2]->isEmpty() ? m_target[2] : m_target[6];
             break;
         case KCardDeck::Diamonds:
-            foundation = m_target[3]->isEmpty() ? m_target[3] : m_target[7];
-            moveCardsToPile( cards, foundation, duration );
+            pile = m_target[3]->isEmpty() ? m_target[3] : m_target[7];
             break;
         }
-    } else {
-        moveCardsToPile( cards, pile, duration );
     }
+    moveCardsToPile( cards, pile, duration );
 }
 
 void Krapette::moveCardToPileByAI(KCard* card, PatPile * pile) 

@@ -71,7 +71,7 @@ public slots:
     virtual void restart(const QList<KCard*> &cards);
     
 protected:
-    virtual void cardsDroppedOnPile( const QList<KCard*> & cards, KCardPile * pile );
+    virtual void cardsDroppedOnPile( const QList<KCard*> &cards, KCardPile *pile );
     
 protected slots:
     virtual void animationDone();
@@ -106,7 +106,8 @@ private:
     PatPile* getActiveWaste() const;
     PatPile* getActiveTalon() const;
     int countEmptyPlayPiles() const;
-    void moveCardsToPileCustom(QList<KCard*> cards, PatPile* pile, int duration);
+    bool checkDrawActionPossible();
+    void moveCardsToPileCustom(QList<KCard*> cards, PatPile *pile, int duration);
     void moveCardToPileByAI(KCard *card, PatPile *pile);
     bool tryMoveCardToPile(KCard *card);
     bool checkCompulsoryMoves() const;
