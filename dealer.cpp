@@ -46,6 +46,7 @@
 
 #include "KCardTheme"
 
+#include <KgDifficulty>
 #include <KConfigGroup>
 #include <QDebug>
 #include <KLocalizedString>
@@ -1826,6 +1827,11 @@ int DealerScene::actions() const
 QList<QAction*> DealerScene::configActions() const
 {
     return QList<QAction*>();
+}
+
+KgDifficulty* DealerScene::getKgDifficulty() const
+{
+    return NULL;
 }
 
 

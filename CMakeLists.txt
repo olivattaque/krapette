@@ -89,9 +89,9 @@ set( kpat_SRCS
     patsolve/simonsolver.cpp
     spider.cpp
     patsolve/spidersolver.cpp
+    russianbank.cpp
     yukon.cpp
     patsolve/yukonsolver.cpp
-    krapette.cpp
 )
 
 ki18n_wrap_ui( kpat_SRCS statisticsdialog.ui )

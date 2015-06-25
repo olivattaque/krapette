@@ -75,6 +75,7 @@
 #include <KXMLGUIFactory>
 #include <KIO/NetAccess>
 #include <KgDifficulty>
+#include <KDebug>
 
 #include <QtCore/QList>
 #include <QtCore/QPointer>
@@ -492,6 +493,7 @@ void MainWindow::slotGameSelected(int id)
 
 void MainWindow::setGameType(int id)
 {
+    kWarning() << "set game typee";
     // Only bother calling creating a new DealerScene if we don't already have
     // the right DealerScene open.
     if ( m_dealer && m_dealer_map.value( id ) == m_dealer_map.value( m_dealer->gameId() ) )
@@ -541,6 +543,10 @@ void MainWindow::setGameType(int id)
     m_solverStatusLabel->setVisible(true);
     m_moveCountStatusLabel->setText(QString());
     m_moveCountStatusLabel->setVisible(true);
+    
+    if(m_dealer->getKgDifficulty()) {
+        KgDifficultyGUI::init(this, m_dealer->getKgDifficulty());
+    }
 
     updateActions();
     updateSoundEngine();

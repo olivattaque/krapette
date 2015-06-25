@@ -35,10 +35,12 @@
  * -------------------------------------------------------------------------
  */
 
-#ifndef KRAPETTE_H
-#define KRAPETTE_H
+#ifndef RUSSIANBANK_H
+#define RUSSIANBANK_H
 
 #include "dealer.h"
+
+#include <KgDifficulty>
 
 class QLabel;
 
@@ -46,6 +48,7 @@ class KToggleAction;
 class KSelectAction;
 
 class KrapettePlayer;
+
 
 class Krapette : public DealerScene
 {
@@ -55,6 +58,9 @@ public:
     Krapette(const DealerInfo *di);
     virtual void initialize();
     QList<QAction*> configActions() const;
+    KgDifficulty* getKgDifficulty() const;
+    virtual void moveCardsToPile( const QList<KCard*> & cards, KCardPile * pile, int duration );
+    
     bool isGameWon() const;
     bool isGameLost() const;
 
@@ -71,7 +77,8 @@ public slots:
     virtual void restart(const QList<KCard*> &cards);
     
 protected:
-    virtual void cardsDroppedOnPile( const QList<KCard*> &cards, KCardPile *pile );
+    virtual QString getGameState() const;
+    virtual void setGameState( const QString & state );
     
 protected slots:
     virtual void animationDone();
@@ -83,31 +90,25 @@ private:
 
     void toggleCompulsoryMoves(bool enabled);
     void toggleMovesShortcuts(bool enabled);
-    void setCrapetteRule();
     void setAISpeed();
-    KSelectAction *m_player1By;
-    KSelectAction *m_player2By;
-    KSelectAction *m_crapetteRuleSelectAction;
     KSelectAction *m_aiSpeedSelectAction;
     KToggleAction *m_compulsoryMovesToggleAction;
     KToggleAction *m_movesShortcutsToggleAction;
     bool m_movesShortcutsEnabled;
     bool m_compulsoryMovesEnabled;
-    int m_crapetteRule;
     int m_aiDurationMove;
     int m_aiTimeBetweenMoves;
     QLabel *m_player1StatusLabel;
 
     void changePlayer();
-    void player1Changed();
-    void player2Changed();
     KrapettePlayer* getOpponent() const;
-    PatPile* getActiveCrapette() const;
+    PatPile* getActiveReserve() const;
     PatPile* getActiveWaste() const;
     PatPile* getActiveTalon() const;
     int countEmptyPlayPiles() const;
     bool checkDrawActionPossible();
     void moveCardsToPileCustom(QList<KCard*> cards, PatPile *pile, int duration);
+    void moveCardToPileCustom(KCard* card, PatPile *pile, int duration);
     void moveCardToPileByAI(KCard *card, PatPile *pile);
     bool tryMoveCardToPile(KCard *card);
     bool checkCompulsoryMoves() const;
@@ -121,8 +122,9 @@ private:
     void tryMoveAI();
     
     QTimer m_aiTimer;
-    QList<KCard*> m_cardsPlayed;
+    QVector<KCard*> m_cardsPlayed;
     bool m_testingMoves;
+    KgDifficulty *m_difficulty;
     KrapettePlayer *m_currentPlayer;
     KrapettePlayer *m_player1;
     KrapettePlayer *m_player2;
@@ -134,20 +136,21 @@ private:
 class KrapettePlayer
 {
 public:
-    KrapettePlayer( PatPile *crapette, PatPile *talon, PatPile *waste, bool human );
+    KrapettePlayer( PatPile *reserve, PatPile *talon, PatPile *waste, bool human, QString name );
     
-    PatPile* crapette() const;
+    PatPile* reserve() const;
     PatPile* talon() const;
     PatPile* waste() const;
+    QString name() const;
     bool isHuman() const;
-    void toggleControl();
     int getTotalCards() const;
     
 private:
-    PatPile *m_crapette;
+    PatPile *m_reserve;
     PatPile *m_talon;
     PatPile *m_waste;
     bool m_human;
+    QString m_name;
 };
 
 #endif

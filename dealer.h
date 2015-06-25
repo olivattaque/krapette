@@ -52,6 +52,7 @@ class SolverThread;
 
 #include "KCardDeck"
 #include "KCardScene"
+#include <KgDifficulty>
 
 class QAction;
 #include <QtCore/QMap>
@@ -90,7 +91,8 @@ public:
     int actions() const;
 
     virtual QList<QAction*> configActions() const;
-
+    virtual KgDifficulty* getKgDifficulty() const;
+    
     void startHint();
     void stopHint();
     bool isHintActive() const;

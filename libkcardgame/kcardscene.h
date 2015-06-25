@@ -94,7 +94,7 @@ public:
     void clearHighlightedItems();
     QList<QGraphicsItem*> highlightedItems() const;
 
-    void moveCardsToPile( const QList<KCard*> & cards, KCardPile * pile, int duration );
+    virtual void moveCardsToPile( const QList<KCard*> & cards, KCardPile * pile, int duration );
     void moveCardToPile( KCard * card, KCardPile * pile, int duration );
     void moveCardsToPileAtSpeed( const QList<KCard*> & cards, KCardPile * pile, qreal velocity );
     void moveCardToPileAtSpeed( KCard * card, KCardPile * pile, qreal velocity );

@@ -70,7 +70,7 @@ public:
         SpiderFourSuitId    = 16,
         SpiderGeneralId     = 17,
         KlondikeGeneralId   = 18,
-        KrapetteId          = 19
+        RussianBankId       = 19
     };
 
     DealerInfo( const QByteArray & untranslatedBaseName, int baseId );

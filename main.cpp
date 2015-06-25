@@ -166,7 +166,7 @@ int main( int argc, char **argv )
                          "coates@kde.org" );
     aboutData.addAuthor( i18n("Olivier Felt"),
                          i18n("Krapette game"),
-                         "olivattaque@gmail.com" );
+                         "olivier.felt@kdemail.com" );
 
     // Create a KLocale earlier than normal so that we can use i18n to translate
     // the names of the game types in the help text.
