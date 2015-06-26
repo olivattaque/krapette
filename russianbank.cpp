@@ -438,7 +438,7 @@ void Krapette::startAI()
 }
 
 bool Krapette::checkDrawActionPossible() {
-    bool possible = m_currentPlayer->isHuman()
+    bool possible = m_currentPlayer->isHuman() && !isGameLost()
                         && ((!getActiveTalon()->isEmpty() 
                                 && !getActiveTalon()->topCard()->isFaceUp())
                             || (getActiveTalon()->isEmpty() 
@@ -578,16 +578,18 @@ void Krapette::toggleMovesShortcuts(bool enabled)
 
 bool Krapette::isGameWon() const
 {
-    return getActiveReserve()->isEmpty() 
+    return m_currentPlayer->isHuman() 
+            && getActiveReserve()->isEmpty() 
             && getActiveTalon()->isEmpty()
             && getActiveWaste()->isEmpty();
 }
 
 bool Krapette::isGameLost() const
 {
-    return getOpponent()->reserve()->isEmpty() 
-            && getOpponent()->talon()->isEmpty()
-            && getOpponent()->waste()->isEmpty();
+    return !m_currentPlayer->isHuman() 
+            && getActiveReserve()->isEmpty() 
+            && getActiveTalon()->isEmpty()
+            && getActiveWaste()->isEmpty();
 }
 
 ///////////////////////////////////////////////
@@ -820,8 +822,8 @@ QString Krapette::getGameState() const
 void Krapette::setGameState( const QString & state )
 {
     if(m_currentPlayer->name() != state) {
-        //changePlayer();
-        undo();
+        changePlayer();
+        //undo();
     }
     checkDrawActionPossible();
 }
